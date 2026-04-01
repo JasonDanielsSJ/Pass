@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  phone      String?
+  tradeType  String   // journeyman | master | contractor
+  homeState  String   @db.Char(2)
+  plan       String   @default("free") // free | pro | employer | enterprise
+  stripeCustomerId String?
+  createdAt  DateTime @default(now())
+
+  credentials      Credential[]
+  complianceChecks ComplianceCheck[]
+  magicLinks       MagicLink[]
+}
+
+model MagicLink {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  usedAt    DateTime?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+}
+
+model Credential {
+  id                 String   @id @default(uuid())
+  userId             String
+  licenseNumber      String
+  issuingState       String   @db.Char(2)
+  licenseType        String
+  tradeLevel         String   // apprentice | journeyman | master | contractor
+  issueDate          DateTime?
+  expiryDate         DateTime
+  status             String   // active | suspended | expired | pending
+  verificationMethod String   // api | scrape | manual_upload
+  lastVerifiedAt     DateTime?
+  rawDocUrl          String?
+  vcJwt              String?  @db.Text // signed W3C VC
+  createdAt          DateTime @default(now())
+
+  user             User             @relation(fields: [userId], references: [id])
+  verificationLogs VerificationLog[]
+  shareTokens      ShareToken[]
+
+  @@unique([licenseNumber, issuingState, licenseType])
+  @@index([userId])
+  @@index([status])
+  @@index([expiryDate])
+}
+
+model ShareToken {
+  id           String   @id @default(uuid())
+  credentialId String
+  token        String   @unique
+  expiresAt    DateTime
+  usedAt       DateTime?
+  createdAt    DateTime @default(now())
+
+  credential Credential @relation(fields: [credentialId], references: [id])
+
+  @@index([token])
+}
+
+model StateRequirement {
+  id              String   @id @default(uuid())
+  stateCode       String   @db.Char(2)
+  tradeType       String
+  tradeLevel      String
+  requirementType String   // exam | bond | fee | experience_years | background_check
+  name            String
+  description     String?
+  feeAmount       Decimal?
+  processingDays  Int?
+  formUrl         String?
+  lastUpdated     DateTime?
+
+  @@unique([stateCode, tradeType, tradeLevel, requirementType, name])
+  @@index([stateCode])
+}
+
+model ReciprocityRule {
+  id            String   @id @default(uuid())
+  homeState     String   @db.Char(2)
+  targetState   String   @db.Char(2)
+  tradeType     String
+  tradeLevel    String
+  status        String   // full | partial | none
+  conditions    Json?    // array of StateRequirement IDs
+  effectiveDate DateTime?
+  sourceUrl     String?
+  lastVerified  DateTime?
+
+  @@unique([homeState, targetState, tradeType, tradeLevel])
+  @@index([homeState, targetState])
+}
+
+model ComplianceCheck {
+  id           String   @id @default(uuid())
+  userId       String
+  targetState  String   @db.Char(2)
+  tradeType    String
+  checkedAt    DateTime @default(now())
+  verdict      String   // compliant | partial | ineligible
+  gapSteps     Json?
+  employerId   String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([checkedAt])
+}
+
+model Employer {
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  plan             String   // employer | enterprise
+  stripeCustomerId String?
+  webhookUrl       String?
+  createdAt        DateTime @default(now())
+}
+
+model VerificationLog {
+  id             String   @id @default(uuid())
+  credentialId   String
+  verifiedByType String   // employer | inspector | self
+  verifiedById   String?
+  timestamp      DateTime @default(now())
+  latitude       Float?
+  longitude      Float?
+  outcome        String   // pass | fail | expired
+
+  credential Credential @relation(fields: [credentialId], references: [id])
+
+  @@index([credentialId])
+  @@index([timestamp])
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@voltpass/vc",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@stablelib/ed25519": "^1.0.3",
+    "@stablelib/random": "^1.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0"
+  }
+}

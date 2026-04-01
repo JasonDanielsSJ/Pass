@@ -1,0 +1,31 @@
+{
+  "name": "@voltpass/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev -p 3000",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@voltpass/types": "workspace:*",
+    "@voltpass/vc": "workspace:*",
+    "@zxing/browser": "^0.1.4",
+    "@zxing/library": "^0.21.2",
+    "next": "14.2.5",
+    "next-pwa": "^5.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "stripe": "^16.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.4.5",
+    "tailwindcss": "^3.4.4",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19"
+  }
+}
