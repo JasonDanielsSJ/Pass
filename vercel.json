@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "installCommand": "cd voltpass && npm install -g pnpm && pnpm install --frozen-lockfile",
+  "buildCommand": "cd voltpass && pnpm --filter @voltpass/web build",
+  "outputDirectory": "voltpass/apps/web/.next"
+}
